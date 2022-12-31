@@ -1,0 +1,34 @@
+{
+  "name": "Halk.md",
+  "short_name": "Halk",
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#000",
+  "background_color": "#f8f8f8",
+  "description": "Halk Gagauz",
+  "icons": [{
+    "src": "./main_48.png",
+    "sizes": "48x48",
+    "type": "image/png"
+  }, {
+    "src": "./main_64.png",
+    "sizes": "64x64",
+    "type": "image/png"
+  }, {
+    "src": "./main_128.png",
+    "sizes": "128x128",
+    "type": "image/png"
+  }, {
+    "src": "./main_192.png",
+    "sizes": "192x192",
+    "type": "image/png"
+  }, {
+    "src": "./main_144.png",
+    "sizes": "144x144",
+    "type": "image/png"
+  }, {
+    "src": "./main_512.png",
+    "sizes": "512x512",
+    "type": "image/png"
+  }]
+}

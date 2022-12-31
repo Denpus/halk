@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Halk.mk</title>
+    <meta name="google" content="notranslate">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#000">
+    <link rel="manifest"
+          href="./manifest.webmanifest">
+    <style>
+        body {
+            background: #000;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+            height: 100vh;
+            overscroll-behavior: contain;
+        }
+
+        video {
+            width: 100%;
+            height: auto;
+            max-height: 100%
+        }
+
+        .full {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            bottom: 0;
+            right: 0;
+        }
+
+        .full > div {
+            background: green;
+            border: 1px solid aquamarine;
+            border-radius: 15px;
+            display: inline-block;
+            padding: 20px 10px;
+            color: #fff;
+            position: absolute;
+            width: 40%;
+            left: 30%;
+            bottom: 10%;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .full > div:hover {
+            background: coral;
+        }
+    </style>
+</head>
+<body>
+<video id="video" preload="auto" loop height="100%"
+       src=""></video>
+<div class="full" onclick="play_init(this)">
+    <div>Смотреть!</div>
+    <button class="add-button">Add to home screen</button>
+</div>
+<script>
+    let touchstartY = 0
+    let touchendY = 0
+    document.addEventListener('touchstart', e => {
+        touchstartY = e.changedTouches[0].screenY
+    })
+
+    document.addEventListener('touchend', e => {
+        touchendY = e.changedTouches[0].screenY
+        //alert(touchstartY + "-" + touchendY)
+        if ((touchstartY - touchendY) > 100) {
+            play_next()
+        } else if ((touchendY - touchstartY) > 100) {
+            play_prev()
+        }
+    })
+    var id = 1;
+
+    function play_prev() {
+        var obj = document.getElementById("video")
+        id--
+        if (id === 0) {
+            id = (api_data.length-1)
+        }
+        obj.src = api_data[id][5][0]
+        obj.play()
+    }
+
+    function play_next() {
+        var obj = document.getElementById("video")
+        id++
+        if (id === api_data.length) {
+            id = 1
+        }
+        obj.src = api_data[id][5][0]
+        obj.play()
+    }
+
+    var instance;
+
+    function play_ex(location, size) {
+        var buffer = new Uint8Array(instance.exports.memory.buffer, location, size);
+        var decoder = new TextDecoder();
+        var string = decoder.decode(buffer);
+        var obj = document.body.getElementsByTagName("video")[0]
+        //obj.src = string
+        //obj.play()
+    }
+
+    var imports = {
+        env: {
+            play_ex: play_ex
+        }
+    };
+    // do the thing
+    fetch("wasmtest.wasm")
+        .then(function (response) {
+            return response.arrayBuffer();
+        })
+        .then(function (bytes) {
+            return WebAssembly.instantiate(bytes, imports);
+        })
+        .then(function (results) {
+            instance = results.instance;
+            // grab our exported function from wasm
+            var add = results.instance.exports.add;
+            console.log(add(3, 4));
+        });
+
+    function play_init(s) {
+        video.play();
+        s.innerHTML = '';
+        //s.onclick = play_next;
+    }
+
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./sw.js')
+            .then(() => {
+                console.log('Service worker registered');
+            })
+            .catch(err => {
+                console.log('Service worker registration failed: ' + err);
+            });
+
+        let deferredPrompt;
+        const addBtn = document.querySelector(".add-button");
+        addBtn.style.display = "none";
+
+        window.addEventListener("beforeinstallprompt", (e) => {
+            // Prevent Chrome 67 and earlier from automatically showing the prompt
+            alert(111)
+            e.preventDefault();
+            deferredPrompt = e;
+            addBtn.style.display = "block";
+            addBtn.addEventListener("click", (e) => {
+                // hide our user interface that shows our A2HS button
+                addBtn.style.display = "none";
+                // Show the prompt
+                deferredPrompt.prompt();
+                // Wait for the user to respond to the prompt
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === "accepted") {
+                        console.log("User accepted the A2HS prompt");
+                    } else {
+                        console.log("User dismissed the A2HS prompt");
+                    }
+                    deferredPrompt = null;
+                });
+            });
+        });
+    }
+    var api_data = null;
+    function api_dat(obj) {
+        api_data = obj
+        video.src = api_data[id][5][0]
+    }
+
+    // mouse
+    if (window.addEventListener) {
+        if ('onwheel' in document) {
+            // IE9+, FF17+, Ch31+
+            window.addEventListener("wheel", onWheel);
+        } else if ('onmousewheel' in document) {
+            // устаревший вариант события
+            window.addEventListener("mousewheel", onWheel);
+        } else {
+            // Firefox < 17
+            window.addEventListener("MozMousePixelScroll", onWheel);
+        }
+    } else { // IE8-
+        window.attachEvent("onmousewheel", onWheel);
+    }
+
+    function onWheel(e) {
+        e = e || window.event;
+        // wheelDelta не даёт возможность узнать количество пикселей
+        var delta = e.deltaY || e.detail || e.wheelDelta;
+        if (delta) {
+            play_next()
+        }
+        e.preventDefault ? e.preventDefault() : (e.returnValue = false);
+    }
+</script>
+<script src="api.json"></script>
+</body>
+</html>

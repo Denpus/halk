@@ -1,0 +1,4 @@
+/libwasmtest.so
+/libwasmtest.so.0
+/wasmtest.wasm.o
+/zig-cache/
