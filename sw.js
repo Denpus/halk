@@ -19,7 +19,7 @@
  */
 const CACHE_NAME = "mpwa-cache-v1";
 const urlsToCache = [
-    "/halk/manifest.webmanifest",
+    "/manifest.webmanifest",
 ];
 
 /**
