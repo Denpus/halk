@@ -79,7 +79,11 @@ async function get_response(request) {
     const cache = await self.caches.open(CACHE_NAME);
     const cached_response = await cache.match(request);
     // Important: we do not await here, since that would defeat the point of using the cache
-    const pending_response = fetch(request).then((response) => {
+
+    let cors = "cors"
+    console.log(33, req.url)
+    const pending_response = fetch(request, {mode: cors})
+        .then((response) => {
         cache.put(request, response.clone());
         return response;
     });
