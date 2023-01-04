@@ -80,12 +80,15 @@ async function get_response(request) {
     const cached_response = await cache.match(request);
     // Important: we do not await here, since that would defeat the point of using the cache
 
-    let cors = "cors"
-    console.log(33, req.url)
+    let cors = /^https:\/\/api/.test(request.url) ? "cors" : "no-cors"
+    console.log(33, request.url)
     const pending_response = fetch(request, {mode: cors})
         .then((response) => {
-        cache.put(request, response.clone());
-        return response;
-    });
+            cache.put(request, response.clone());
+            return response;
+        })
+        .catch((aa) => {
+            console.log(444, a)
+        });
     return cached_response || pending_response;
 }
