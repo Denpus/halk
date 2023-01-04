@@ -75,6 +75,7 @@ self.addEventListener("fetch", (event) => {
  * In the background fetch the latest version and put that into cache
  * on next request the user will get the latest version
  */
+
 async function get_response(request) {
     const cache = await self.caches.open(CACHE_NAME);
     const cached_response = await cache.match(request);
